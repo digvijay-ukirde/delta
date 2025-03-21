@@ -12,27 +12,39 @@ log_level = getattr(logging, LOG_LEVEL.upper(), logging.INFO)
 logger = setup_logger('DeltaExchangeAPIClient', log_file='delta.log', log_level=log_level)
 
 def main():
-    # Initialize DataFetcher with your API Key
+    # Initialize DataFetcher
     data_fetcher = DataFetcher()
     while True:
         try:
-            # # Get live ticker data
-            # for product in PRODUCTS:
-            #     ticker_data = data_fetcher.get_ticker_data(product["ticker"])
-
-            #     if ticker_data:
-            #         live_value = get_value(ticker_data["result"], "mark_price")
-            #         print(f"{datetime.now().strftime("%Y:%m:%d:%H:%M:%S")}, {product["name"]}, {live_value}")
-            #     else:
-            #         print("Could not retrieve live data.")
-
             # Get live ticker data
             for product in PRODUCTS:
-                ticker_data = data_fetcher.get_ticker_data(product["ticker"])
+                ticker_data = data_fetcher.get_tickers_data(product["symbol"])
 
                 if ticker_data:
-                    live_value = get_value(ticker_data["result"], "mark_price")
-                    print(f"{datetime.now().strftime("%Y:%m:%d:%H:%M:%S")}, {product["name"]}, {live_value}")
+                    json_data = ticker_data["result"]
+                    mark_price = get_value(json_data, "mark_price")
+                    print(f"{datetime.now().strftime("%Y:%m:%d:%H:%M:%S")}, Product: {product["name"]}, MarketPrice: {mark_price}")
+                else:
+                    print("Could not retrieve live data.")
+
+                # Get live historical candle data
+                current_time = int(time.time())
+                start = current_time - (current_time % 300) 
+                end = current_time
+                params = {
+                    "resolution": product["resolution"],
+                    "symbol": product["symbol"],
+                    "start": start,
+                    "end": end
+                }
+                historical_data = data_fetcher.get_history_candles_data(params)
+
+                if historical_data:
+                    json_data = historical_data["result"][0]
+                    high = get_value(json_data, "high")
+                    low = get_value(json_data, "low")
+                    volume = get_value(json_data, "volume")
+                    print(f"{datetime.now().strftime("%Y:%m:%d:%H:%M:%S")}, Product: {product["name"]}, High: {high}, Low:{low} , Volume:{volume}")
                 else:
                     print("Could not retrieve live data.")
 

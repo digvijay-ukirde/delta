@@ -12,7 +12,7 @@ class DataFetcher:
     def __init__(self):
         self.client = DeltaExchangeAPIClient()
 
-    def get_ticker_data(self, ticker):
+    def get_tickers_data(self, ticker):
         """Fetch live ticker data from Delta Exchange."""
         endpoint = f"tickers/{ticker}"
         logger.info(f"Fetching ticker data for {ticker}...")
@@ -23,4 +23,17 @@ class DataFetcher:
             return data
         else:
             logger.error(f"Failed to retrieve ticker data for {ticker}.")
+            return None
+
+    def get_history_candles_data(self, params):
+        """Fetch live ticker data from Delta Exchange."""
+        endpoint = f"history/candles"
+        logger.info(f"Fetching historical data for {params['symbol']}...")
+
+        data = self.client.get(endpoint, params)
+        if data:
+            logger.info(f"Historical data for {params['symbol']}: {data}")
+            return data
+        else:
+            logger.error(f"Failed to retrieve Historical data for {params['symbol']}.")
             return None
