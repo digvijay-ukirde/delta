@@ -3,7 +3,7 @@ import requests
 import time
 import hmac
 import hashlib
-from config import API_URL, API_KEY, SECRET_KEY, LOG_LEVEL
+from credentials import API_URL, API_KEY, SECRET_KEY, LOG_LEVEL
 from logger import setup_logger
 import logging
 

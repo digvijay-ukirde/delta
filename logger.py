@@ -1,4 +1,3 @@
-# logger.py
 import logging
 
 def setup_logger(name: str, log_file: str = None, log_level: int = logging.DEBUG):

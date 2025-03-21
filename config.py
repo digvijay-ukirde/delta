@@ -1,5 +1,13 @@
-API_URL = "https://api.india.delta.exchange/v2"
-API_KEY = ""
-SECRET_KEY = ""
-LOG_LEVEL = "DEBUG"
-INTERVAL = 1
+INTERVAL = 10
+PRODUCTS = [
+    {
+        "name": "Ethereum",
+        "ticker": "ETHUSD",
+        "change": 40
+    },
+    {
+        "name": "Bitcoin",
+        "ticker": "BTCUSD",
+        "change": 100
+    }
+]

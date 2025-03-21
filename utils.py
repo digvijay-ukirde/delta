@@ -1,4 +1,4 @@
-from config import LOG_LEVEL
+from credentials import LOG_LEVEL
 from logger import setup_logger
 import logging
 
