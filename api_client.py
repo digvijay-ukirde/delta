@@ -13,9 +13,9 @@ logger = setup_logger('DeltaExchangeAPIClient', log_file='delta.log', log_level=
 
 
 class DeltaExchangeAPIClient:
-    def __init__(self, api_key, secret_key):
-        self.api_key = api_key
-        self.secret_key = secret_key
+    def __init__(self):
+        self.api_key = API_KEY
+        self.secret_key = SECRET_KEY
         self.base_url = API_URL
 
     def _generate_signature(self, params):
