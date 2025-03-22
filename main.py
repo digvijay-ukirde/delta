@@ -18,14 +18,14 @@ def main():
         try:
             # Get live ticker data
             for product in PRODUCTS:
-                ticker_data = data_fetcher.get_tickers_data(product["symbol"])
+                # ticker_data = data_fetcher.get_tickers_data(product["symbol"])
 
-                if ticker_data:
-                    json_data = ticker_data["result"]
-                    mark_price = get_value(json_data, "mark_price")
-                    print(f"{datetime.now().strftime("%Y:%m:%d:%H:%M:%S")}, Product: {product["name"]}, MarketPrice: {mark_price}")
-                else:
-                    print("Could not retrieve live data.")
+                # if ticker_data:
+                #     json_data = ticker_data["result"]
+                #     mark_price = get_value(json_data, "mark_price")
+                #     print(f"{datetime.now().strftime("%Y:%m:%d:%H:%M:%S")}, Product: {product["name"]}, MarketPrice: {mark_price}")
+                # else:
+                #     print("Could not retrieve live data.")
 
                 # Get live historical candle data
                 current_time = int(time.time())
@@ -39,14 +39,18 @@ def main():
                 }
                 historical_data = data_fetcher.get_history_candles_data(params)
 
-                if historical_data:
+                if historical_data["result"]:
+                    print(historical_data["result"])
                     json_data = historical_data["result"][0]
                     high = get_value(json_data, "high")
                     low = get_value(json_data, "low")
+                    open = get_value(json_data, "open")
+                    close = get_value(json_data, "close")
                     volume = get_value(json_data, "volume")
-                    print(f"{datetime.now().strftime("%Y:%m:%d:%H:%M:%S")}, Product: {product["name"]}, High: {high}, Low:{low} , Volume:{volume}")
+                    print(f"{datetime.now().strftime("%Y:%m:%d:%H:%M:%S")}, Product: {product["name"]}, High: {high}, Low:{low}, Open: {open}, Close:{close}, Volume:{volume}")
                 else:
-                    print("Could not retrieve live data.")
+                    print("Could not retrieve live data. Probably at the end of candle. Sleeping for a minute.")
+                    time.sleep(60)
 
             time.sleep(INTERVAL)
         except EOFError:
