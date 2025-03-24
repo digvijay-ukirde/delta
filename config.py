@@ -4,13 +4,13 @@ PRODUCTS = [
         "name": "Ethereum",
         "symbol": "ETHUSD",
         "resolution": "5m",
-        "change": 10,
+        "change": 40,
         "profit": 20
     },
     {
         "name": "Bitcoin",
         "symbol": "BTCUSD",
-        "resolution": "30m",
+        "resolution": "5m",
         "change": 200,
         "profit": 50
     },

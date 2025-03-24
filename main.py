@@ -12,7 +12,7 @@ logger = setup_logger('DeltaExchangeAPIClient', log_file='delta.log', log_level=
 def main():
     # Initialize DataFetcher
     data_fetcher = DataFetcher()
-    data_fetcher.backtrack_historical_threshold_logic(PRODUCTS[1], 2000)
+    data_fetcher.backtrack_historical_threshold_logic(PRODUCTS[0], 2000)
     # while True:
     #     try:
     #         # Get live ticker data

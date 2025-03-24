@@ -92,35 +92,35 @@ class DataFetcher:
                 print(f"{datetime.now().strftime("%Y:%m:%d:%H:%M:%S")}, Product: {product["name"]}, High: {lettest_candle["high"]}, Low: {lettest_candle["high"]}, Change: {change_diff}")     
 
 
-    def execute_long_order(self, historical_candles, target_profit, target_loss, profit):
+    def execute_long_order(self, historical_candles, buy, sell, profit):
         pl = 0
         for index, candle in enumerate(historical_candles):
             # if it breacks resistanace or support
             high = get_value(historical_candles[index], "high")
             low = get_value(historical_candles[index], "low")
-            if high >= target_profit: 
-                print(f"Profit achieved, Selling the asset. Sell: {target_profit}")
+            if high >= (buy+profit): 
+                print(f"Profit achieved, Selling the asset. Sell: {buy+profit}")
                 pl = profit
                 break
-            elif low <= target_loss:
-                print(f"Loss booked, Selling the asset. Buy: {target_loss}")
-                pl = -profit
+            elif low <= sell:
+                print(f"Loss booked, Selling the asset. Sell: {sell}")
+                pl = (sell-buy)
                 break        
         return pl
     
-    def execute_short_order(self, historical_candles, target_profit, target_loss, profit):
+    def execute_short_order(self, historical_candles, sell, buy, profit):
         pl = 0
         for index, candle in enumerate(historical_candles):
             # if it breacks resistanace or support
             high = get_value(historical_candles[index], "high")
             low = get_value(historical_candles[index], "low")
-            if low <= target_profit: 
-                print(f"Profit achieved, Buying the asset. Buy: {target_profit}")
+            if low <= sell-profit: 
+                print(f"Profit achieved, Buying the asset. Buy: {sell-profit}")
                 pl = profit
                 break
-            elif high >= target_loss:
-                print(f"Loss booked, Buying the asset. Buy: {target_loss}")
-                pl = -profit
+            elif high >= buy:
+                print(f"Loss booked, Buying the asset. Buy: {buy}")
+                pl = (sell-buy)
                 break        
         return pl
 
@@ -137,14 +137,14 @@ class DataFetcher:
                 target = resistance + profit
                 sell = support 
                 print(f"Broke Resistance, Buying the asset. Buy: {buy}, Set Profit Taregt: {target}, Set SL: {sell}")
-                pl = pl + self.execute_long_order(historical_candles, target, sell, profit)
+                pl = pl + self.execute_long_order(historical_candles, buy, sell, profit)
                 break
             elif low <= support:
                 sell = support
                 target = support - profit
                 buy = resistance
                 print(f"Broke Support, Selling the asset. Sell: {sell}, Set Profit Taregt: {target}, Set SL: {buy}")
-                pl = pl + self.execute_short_order(historical_candles, target, buy, profit)
+                pl = pl + self.execute_short_order(historical_candles, sell, buy, profit)
                 break
         return pl
 
