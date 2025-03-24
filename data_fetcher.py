@@ -1,5 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import time
+import math
 from utils import get_value
 from api_client import DeltaExchangeAPIClient
 from credentials import LOG_LEVEL
@@ -91,13 +92,87 @@ class DataFetcher:
                 print(f"{datetime.now().strftime("%Y:%m:%d:%H:%M:%S")}, Product: {product["name"]}, High: {lettest_candle["high"]}, Low: {lettest_candle["high"]}, Change: {change_diff}")     
 
 
-    def format_historical_threshold_movement(self, product, candle_count):
-            historical_candles = self.format_historical_data(product, candle_count)
+    def execute_long_order(self, historical_candles, target_profit, target_loss, profit):
+        pl = 0
+        for index, candle in enumerate(historical_candles):
+            # if it breacks resistanace or support
+            high = get_value(historical_candles[index], "high")
+            low = get_value(historical_candles[index], "low")
+            if high >= target_profit: 
+                print(f"Profit achieved, Selling the asset. Sell: {target_profit}")
+                pl = profit
+                break
+            elif low <= target_loss:
+                print(f"Loss booked, Selling the asset. Buy: {target_loss}")
+                pl = -profit
+                break        
+        return pl
+    
+    def execute_short_order(self, historical_candles, target_profit, target_loss, profit):
+        pl = 0
+        for index, candle in enumerate(historical_candles):
+            # if it breacks resistanace or support
+            high = get_value(historical_candles[index], "high")
+            low = get_value(historical_candles[index], "low")
+            if low <= target_profit: 
+                print(f"Profit achieved, Buying the asset. Buy: {target_profit}")
+                pl = profit
+                break
+            elif high >= target_loss:
+                print(f"Loss booked, Buying the asset. Buy: {target_loss}")
+                pl = -profit
+                break        
+        return pl
+
+    def check_order_fessibility(self, historical_candles, resistance, support, profit):
+        buy = 0
+        sell = 0
+        pl = 0
+        for index, candle in enumerate(historical_candles):
+            # if it breacks resistanace or support
+            high = get_value(historical_candles[index], "high")
+            low = get_value(historical_candles[index], "low")
+            if high >= resistance: 
+                buy = resistance
+                target = resistance + profit
+                sell = support 
+                print(f"Broke Resistance, Buying the asset. Buy: {buy}, Set Profit Taregt: {target}, Set SL: {sell}")
+                pl = pl + self.execute_long_order(historical_candles, target, sell, profit)
+                break
+            elif low <= support:
+                sell = support
+                target = support - profit
+                buy = resistance
+                print(f"Broke Support, Selling the asset. Sell: {sell}, Set Profit Taregt: {target}, Set SL: {buy}")
+                pl = pl + self.execute_short_order(historical_candles, target, buy, profit)
+                break
+        return pl
+
+
+    def backtrack_historical_threshold_logic(self, product, candle_count):
+            pl = 0
+            ist = timezone(timedelta(hours=5, minutes=30))
+            historical_candles = self.format_historical_data(product, candle_count)[::-1]
             for index, candle in enumerate(historical_candles):
+                std_time = datetime.fromtimestamp(get_value(historical_candles[index], "time"), tz=ist)
+                time = std_time.strftime('%Y:%m:%d:%H:%M')
                 high = get_value(historical_candles[index], "high")
                 low = get_value(historical_candles[index], "low")
                 open = get_value(historical_candles[index], "open")
                 close = get_value(historical_candles[index], "close")
                 volume = get_value(historical_candles[index], "volume")
-                print(f"{datetime.now().strftime("%Y:%m:%d:%H:%M:%S")}, Product: {product["name"]}, Candle: {index + 1}, High: {high}, Low:{low}, Open: {open}, Close:{close}, Volume:{volume}")
+                logger.debug(f"{datetime.now().strftime("%Y:%m:%d:%H:%M:%S")}, Product: {product["name"]}, Candle: {index + 1}, Time: {time}, High: {high}, Low:{low}, Open: {open}, Close:{close}, Volume:{volume}")
+
+                change_diff = high - low
+                if change_diff > product["change"]:
+                    resistance = math.ceil(high)
+                    support = math.floor(low)
+                    #print(f"{datetime.now().strftime("%Y:%m:%d:%H:%M:%S")}, Product: {product["name"]}, Candle: {index + 1}, Time: {time}, Resistance: {resistance}, Support: {support}, Change: {change_diff}")
+                    pl = pl + (self.check_order_fessibility(historical_candles[index:], resistance, support, product["profit"]))
+                    print(pl)
+
+
+
+                
+                
 

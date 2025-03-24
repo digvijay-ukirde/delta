@@ -12,19 +12,21 @@ logger = setup_logger('DeltaExchangeAPIClient', log_file='delta.log', log_level=
 def main():
     # Initialize DataFetcher
     data_fetcher = DataFetcher()
+    data_fetcher.backtrack_historical_threshold_logic(PRODUCTS[1], 2000)
+    # while True:
+    #     try:
+    #         # Get live ticker data
+    #         for product in PRODUCTS:
+    #             # data_fetcher.format_tickers_data(product)
+    #             # data_fetcher.format_historical_data(product, 2000)
+    #             # data_fetcher.format_live_threshold_movement(product, 1)
+    #             data_fetcher.format_historical_threshold_movement(product, 2000)
+    #         time.sleep(INTERVAL)
+    #     except EOFError:
+    #         print("\nCtrl+D pressed. Exiting the loop.")
+    #         break 
+
     
-    while True:
-        try:
-            # Get live ticker data
-            for product in PRODUCTS:
-                # data_fetcher.format_tickers_data(product)
-                # data_fetcher.format_historical_data(product, 2000)
-                data_fetcher.format_live_threshold_movement(product, 1)
-                # data_fetcher.format_historical_threshold_movement(product, 2000)
-            time.sleep(INTERVAL)
-        except EOFError:
-            print("\nCtrl+D pressed. Exiting the loop.")
-            break 
 
 if __name__ == "__main__":
     main()
