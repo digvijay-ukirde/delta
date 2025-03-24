@@ -94,32 +94,38 @@ class DataFetcher:
 
     def execute_long_order(self, historical_candles, buy, sell, profit):
         pl = 0
+        ist = timezone(timedelta(hours=5, minutes=30))
         for index, candle in enumerate(historical_candles):
             # if it breacks resistanace or support
             high = get_value(historical_candles[index], "high")
             low = get_value(historical_candles[index], "low")
+            std_time = datetime.fromtimestamp(get_value(historical_candles[index], "time"), tz=ist)
+            time = std_time.strftime('%Y:%m:%d:%H:%M')
             if high >= (buy+profit): 
-                print(f"Profit achieved, Selling the asset. Sell: {buy+profit}")
+                print(f"Profit achieved, Selling the asset. Sell: {buy+profit} at Time: {time}")
                 pl = profit
                 break
             elif low <= sell:
-                print(f"Loss booked, Selling the asset. Sell: {sell}")
+                print(f"Loss booked, Selling the asset. Sell: {sell} at Time: {time}")
                 pl = (sell-buy)
                 break        
         return pl
     
     def execute_short_order(self, historical_candles, sell, buy, profit):
         pl = 0
+        ist = timezone(timedelta(hours=5, minutes=30))
         for index, candle in enumerate(historical_candles):
             # if it breacks resistanace or support
             high = get_value(historical_candles[index], "high")
             low = get_value(historical_candles[index], "low")
+            std_time = datetime.fromtimestamp(get_value(historical_candles[index], "time"), tz=ist)
+            time = std_time.strftime('%Y:%m:%d:%H:%M')
             if low <= sell-profit: 
-                print(f"Profit achieved, Buying the asset. Buy: {sell-profit}")
+                print(f"Profit achieved, Buying the asset. Buy: {sell-profit} at Time: {time}")
                 pl = profit
                 break
             elif high >= buy:
-                print(f"Loss booked, Buying the asset. Buy: {buy}")
+                print(f"Loss booked, Buying the asset. Buy: {buy} at Time: {time}")
                 pl = (sell-buy)
                 break        
         return pl
@@ -128,22 +134,25 @@ class DataFetcher:
         buy = 0
         sell = 0
         pl = 0
+        ist = timezone(timedelta(hours=5, minutes=30))
         for index, candle in enumerate(historical_candles):
             # if it breacks resistanace or support
             high = get_value(historical_candles[index], "high")
             low = get_value(historical_candles[index], "low")
+            std_time = datetime.fromtimestamp(get_value(historical_candles[index], "time"), tz=ist)
+            time = std_time.strftime('%Y:%m:%d:%H:%M')
             if high >= resistance: 
                 buy = resistance
                 target = resistance + profit
                 sell = support 
-                print(f"Broke Resistance, Buying the asset. Buy: {buy}, Set Profit Taregt: {target}, Set SL: {sell}")
+                print(f"Broke Resistance, Buying the asset. Buy: {buy}, Set Profit Taregt: {target}, Set SL: {sell} at Time: {time}")
                 pl = pl + self.execute_long_order(historical_candles, buy, sell, profit)
                 break
             elif low <= support:
                 sell = support
                 target = support - profit
                 buy = resistance
-                print(f"Broke Support, Selling the asset. Sell: {sell}, Set Profit Taregt: {target}, Set SL: {buy}")
+                print(f"Broke Support, Selling the asset. Sell: {sell}, Set Profit Taregt: {target}, Set SL: {buy} at Time: {time}")
                 pl = pl + self.execute_short_order(historical_candles, sell, buy, profit)
                 break
         return pl
